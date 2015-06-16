@@ -20,7 +20,7 @@ var Paint = (function () {
 		this.color = "#000";
 		this.size = 3;
 
-		this.paths = [];
+		this.pathStack = [];
 		this.stack = [];
 		this.stackCursor = -1;
 		this.pressed = false;
@@ -65,6 +65,12 @@ var Paint = (function () {
 			return this.size;
 		}
 	}, {
+		key: "setLineWidth",
+		value: function setLineWidth(value) {}
+	}, {
+		key: "getLineWidth",
+		value: function getLineWidth() {}
+	}, {
 		key: "undo",
 		value: function undo() {
 			// console.log("undo");
@@ -101,12 +107,27 @@ var Paint = (function () {
 		value: function _point(x, y) {
 			// console.log(this.size);
 			this.context.beginPath();
-			this.context.arc(x, y, this.size, 0, 360 * Math.PI / 180);
+			this.context.arc(x, y, this.size / 2, 0, 360 * Math.PI / 180);
 			this.context.fill();
 		}
 	}, {
 		key: "_stroke",
-		value: function _stroke() {}
+		value: function _stroke() {
+			//console.log(this.pathStack.length);
+			this.context.beginPath();
+			this.context.lineWidth = 3;
+			for (var i = 0; i < this.pathStack.length; i++) {
+				var path = this.pathStack[i];
+				if (i === 0) {
+					this.context.moveTo(path.x, path.y);
+				} else {
+					// this.context.arcTo(this.pathStack[i - i].x, this.pathStack[i - i].y, path.x, path.y, 1);
+					this.context.lineTo(path.x, path.y);
+				}
+				// this.context.lineTo(20, 80);
+			}
+			this.context.stroke();
+		}
 	}, {
 		key: "_pushStack",
 		value: function _pushStack() {
@@ -135,6 +156,13 @@ var Paint = (function () {
 			e.preventDefault();
 			this.pressed = true;
 			this._point(e.layerX, e.layerY);
+
+			var x = e.layerX;
+			var y = e.layerY;
+			this.pathStack.push({
+				x: x,
+				y: y
+			});
 		}
 	}, {
 		key: "_mousemove",
@@ -145,6 +173,12 @@ var Paint = (function () {
 			}
 			// console.log(e);
 			//this._point(e.layerX, e.layerY);
+			var x = e.layerX;
+			var y = e.layerY;
+			this.pathStack.push({
+				x: x,
+				y: y
+			});
 		}
 	}, {
 		key: "_mouseup",
@@ -155,6 +189,7 @@ var Paint = (function () {
 			}
 			this.pressed = false;
 			this._stroke();
+			this.pathStack.length = 0;
 			this._pushStack();
 		}
 	}]);

@@ -13,7 +13,8 @@ class Paint{
 		this.color = "#000";
 		this.size = 3;
 
-		this.paths = [];
+
+		this.pathStack = [];
 		this.stack = [];
 		this.stackCursor = -1;
 		this.pressed = false;
@@ -26,6 +27,7 @@ class Paint{
 		document.addEventListener("mouseup", (e) => this._mouseup(e));
 
 		this._pushStack();
+
 	}
 
 	getCanvas(){
@@ -46,6 +48,14 @@ class Paint{
 
 	getSize(){
 		return this.size;
+	}
+
+	setLineWidth(value){
+
+	}
+
+	getLineWidth(){
+		
 	}
 
 
@@ -83,12 +93,25 @@ class Paint{
 	_point(x, y){
 		// console.log(this.size);
 		this.context.beginPath();
-		this.context.arc(x, y, this.size, 0, 360 * Math.PI / 180);
+		this.context.arc(x, y, this.size / 2, 0, 360 * Math.PI / 180);
 		this.context.fill();
 	}
 
 	_stroke(){
-
+		//console.log(this.pathStack.length);
+		this.context.beginPath();
+		this.context.lineWidth = 3;
+		for(let i = 0; i < this.pathStack.length; i++){
+			let path = this.pathStack[i];
+			if(i === 0){
+				this.context.moveTo(path.x, path.y);
+			}else{
+				// this.context.arcTo(this.pathStack[i - i].x, this.pathStack[i - i].y, path.x, path.y, 1);
+				this.context.lineTo(path.x, path.y);
+			}
+			// this.context.lineTo(20, 80);
+		}
+		this.context.stroke();
 	}
 
 	_pushStack(){
@@ -115,6 +138,13 @@ class Paint{
 		e.preventDefault();
 		this.pressed = true;
 		this._point(e.layerX, e.layerY);
+
+		let x = e.layerX;
+		let y = e.layerY;
+		this.pathStack.push({
+			x: x,
+			y: y
+		});
 	}
 
 	_mousemove(e){
@@ -124,6 +154,12 @@ class Paint{
 		}
 		// console.log(e);
 		//this._point(e.layerX, e.layerY);
+		let x = e.layerX;
+		let y = e.layerY;
+		this.pathStack.push({
+			x: x,
+			y: y
+		});
 	}
 
 	_mouseup(e){
@@ -133,6 +169,7 @@ class Paint{
 		}
 		this.pressed = false;
 		this._stroke();
+		this.pathStack.length = 0;
 		this._pushStack();
 	}
 

@@ -1,46 +1,5 @@
 
 
-/*
-window.addEventListener("load", function(){
-	main();
-});
-
-
-
-function main(){
-
-	let count = 5;
-	let paints = [];
-	for(var i = 0; i < count; i++){
-		let paint = new Paint();
-		let canvas = paint.getCanvas();
-
-		let div = document.createElement("div");
-		div.appendChild(canvas);
-
-		let button = document.createElement("button");
-		button.innerText = "set";
-		button.addEventListener("click", (e) => {
-			paint.setSize(Math.random() * 20);
-			console.log(paint.size);
-		});
-		div.appendChild(button);
-
-		button = document.createElement("button");
-		button.innerText = "get";
-		button.addEventListener("click", (e) => {
-			console.log(paint.size);
-		});
-		div.appendChild(button);
-
-		document.querySelector(".paint").appendChild(div);
-		paints.push(paint);
-	}
-
-}
-
-*/
-
 angular.module("app", [])
 
 .directive("paint", () => {
