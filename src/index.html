@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html ng-app="app">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.16/angular.js"></script>
+	<script src="js/paint.js"></script>
+	<script src="js/main.js"></script>
+	<link rel="stylesheet" href="css/style.css"></link>
+
+	<body ng-controller="MainCtrl">
+
+		<div class="paint" ng-repeat="paint in paints">
+			<paint
+				width="paint.width"
+				height="paint.height"
+				size="paint.size"
+				color="paint.color"
+				paint="paint.paint"
+			></paint>
+			<div>
+				width: <input type="number" ng-model="paint.width">
+			</div>
+			<div>
+				height: <input type="number" ng-model="paint.height">
+			</div>
+			<div>
+				size: <input type="number" ng-model="paint.size">
+			</div>
+			<div>
+				color: <input type="text" ng-model="paint.color">
+			</div>
+			<div>
+				<button ng-click="paint.paint.undo()">undo</button>
+				<button ng-click="paint.paint.redo()">redo</button>
+			</div>
+
+			<hr>
+
+		</div>
+
+
+	</body>
+
+</html>
