@@ -13,31 +13,33 @@ var Paint = (function () {
 		_classCallCheck(this, Paint);
 
 		this.canvas = document.createElement("canvas");
+		this.context = this.canvas.getContext("2d");
+
 		this.canvas.width = options.width || 400;
 		this.canvas.height = options.height || 300;
 
-		this.context = this.canvas.getContext("2d");
-		this.color = "#000";
-		this.size = 3;
+		this.context.lineWidth = options.lineWidth || 5;
+		this.context.lineCap = options.lineCap || "round";
+		this.context.lineJoin = options.lineJoin || "round";
+		this.context.fillStyle = options.fillStyle;
+		this.context.strokeStyle = options.strokeStyle;
 
 		this.pathStack = [];
-		this.stack = [];
+		this.canvasDataStack = [];
 		this.stackCursor = -1;
 		this.pressed = false;
+
+		this._pushCanvasDataStack();
 
 		this.canvas.addEventListener("mousedown", function (e) {
 			return _this._mousedown(e);
 		});
-
 		document.addEventListener("mousemove", function (e) {
 			return _this._mousemove(e);
 		});
-
 		document.addEventListener("mouseup", function (e) {
 			return _this._mouseup(e);
 		});
-
-		this._pushStack();
 	}
 
 	_createClass(Paint, [{
@@ -47,45 +49,30 @@ var Paint = (function () {
 			return this.canvas;
 		}
 	}, {
-		key: "setColor",
-		value: function setColor(color) {
-			// console.log("setColor" + color);
-			this.color = color;
-			this.context.fillStyle = color;
-		}
-	}, {
-		key: "setSize",
-		value: function setSize(size) {
-			// console.log("setSize: " + size)
-			this.size = size;
-		}
-	}, {
-		key: "getSize",
-		value: function getSize() {
-			return this.size;
+		key: "setFillStyle",
+		value: function setFillStyle(value) {
+			this.context.fillStyle = value;
 		}
 	}, {
 		key: "setLineWidth",
-		value: function setLineWidth(value) {}
-	}, {
-		key: "getLineWidth",
-		value: function getLineWidth() {}
+		value: function setLineWidth(value) {
+			this.context.lineWidth = value;
+		}
 	}, {
 		key: "undo",
 		value: function undo() {
-			// console.log("undo");
 			if (this.stackCursor === 0) {
 				return;
 			}
 
 			this.stackCursor--;
-			var data = this.stack[this.stackCursor];
+			var data = this.canvasDataStack[this.stackCursor];
 			this._resotoreCanvas(data);
 		}
 	}, {
 		key: "redo",
 		value: function redo() {
-			var data = this.stack[this.stackCursor + 1];
+			var data = this.canvasDataStack[this.stackCursor + 1];
 			if (!data) {
 				return;
 			}
@@ -98,24 +85,68 @@ var Paint = (function () {
 	}, {
 		key: "setCanvasSize",
 		value: function setCanvasSize(width, height) {
+			this._saveContext();
 			this.canvas.width = width;
 			this.canvas.height = height;
-			this._pushStack();
+			this._pushCanvasDataStack();
+			this._restoreContext();
+		}
+	}, {
+		key: "_pushCanvasDataStack",
+		value: function _pushCanvasDataStack() {
+			this.canvasDataStack.length = this.stackCursor + 1;
+			this.stackCursor++;
+			var width = this.canvas.width;
+			var height = this.canvas.height;
+			var imagedata = this.context.getImageData(0, 0, width, height);
+			this.canvasDataStack.push({
+				width: width,
+				height: height,
+				imagedata: imagedata
+			});
+		}
+	}, {
+		key: "_resotoreCanvas",
+		value: function _resotoreCanvas(canvasData) {
+			this._saveContext();
+			this.canvas.width = canvasData.width;
+			this.canvas.height = canvasData.height;
+			this.context.putImageData(canvasData.imagedata, 0, 0);
+			this._restoreContext();
+		}
+	}, {
+		key: "_saveContext",
+		value: function _saveContext() {
+			var context = this.context;
+			this.contextOptions = {
+				lineWidth: context.lineWidth,
+				lineCap: context.lineCap,
+				lineJoin: context.lineJoin,
+				fillStyle: context.fillStyle,
+				strokeStyle: context.strokeStyle };
+		}
+	}, {
+		key: "_restoreContext",
+		value: function _restoreContext() {
+			var contextOptions = this.contextOptions;
+			this.context.lineWidth = contextOptions.lineWidth;
+			this.context.lineCap = contextOptions.lineCap;
+			this.context.lineJoin = contextOptions.lineJoin;
+			this.context.fillStyle = contextOptions.fillStyle;
+			this.context.strokeStyle = contextOptions.fillStyle;
 		}
 	}, {
 		key: "_point",
 		value: function _point(x, y) {
-			// console.log(this.size);
 			this.context.beginPath();
-			this.context.arc(x, y, this.size / 2, 0, 360 * Math.PI / 180);
+			this.context.arc(x, y, this.context.lineWidth / 2, 0, 360 * Math.PI / 180);
 			this.context.fill();
 		}
 	}, {
 		key: "_stroke",
 		value: function _stroke() {
-			//console.log(this.pathStack.length);
+
 			this.context.beginPath();
-			this.context.lineWidth = 3;
 			for (var i = 0; i < this.pathStack.length; i++) {
 				var path = this.pathStack[i];
 				if (i === 0) {
@@ -127,27 +158,6 @@ var Paint = (function () {
 				// this.context.lineTo(20, 80);
 			}
 			this.context.stroke();
-		}
-	}, {
-		key: "_pushStack",
-		value: function _pushStack() {
-			this.stack.length = this.stackCursor + 1;
-			this.stackCursor++;
-			var width = this.canvas.width;
-			var height = this.canvas.height;
-			var imagedata = this.context.getImageData(0, 0, width, height);
-			this.stack.push({
-				width: width,
-				height: height,
-				imagedata: imagedata
-			});
-		}
-	}, {
-		key: "_resotoreCanvas",
-		value: function _resotoreCanvas(canvasData) {
-			this.canvas.width = canvasData.width;
-			this.canvas.height = canvasData.height;
-			this.context.putImageData(canvasData.imagedata, 0, 0);
 		}
 	}, {
 		key: "_mousedown",
@@ -190,7 +200,7 @@ var Paint = (function () {
 			this.pressed = false;
 			this._stroke();
 			this.pathStack.length = 0;
-			this._pushStack();
+			this._pushCanvasDataStack();
 		}
 	}]);
 

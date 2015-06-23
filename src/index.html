@@ -11,8 +11,8 @@
 			<paint
 				width="paint.width"
 				height="paint.height"
-				size="paint.size"
-				color="paint.color"
+				line-width="paint.lineWidth"
+				fill-style="paint.fillStyle"
 				paint="paint.paint"
 			></paint>
 			<div>
@@ -22,10 +22,10 @@
 				height: <input type="number" ng-model="paint.height">
 			</div>
 			<div>
-				size: <input type="number" ng-model="paint.size">
+				lineWidth: <input type="number" ng-model="paint.lineWidth">
 			</div>
 			<div>
-				color: <input type="text" ng-model="paint.color">
+				fillStyle: <input type="text" ng-model="paint.fillStyle">
 			</div>
 			<div>
 				<button ng-click="paint.paint.undo()">undo</button>

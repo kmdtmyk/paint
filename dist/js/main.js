@@ -1,3 +1,5 @@
+// vim: set filetype=javascript :
+
 "use strict";
 
 angular.module("app", []).directive("paint", function () {
@@ -7,45 +9,44 @@ angular.module("app", []).directive("paint", function () {
 		scope: {
 			width: "=",
 			height: "=",
-			size: "=",
-			color: "=",
+			lineWidth: "=",
+			fillStyle: "=",
 			paint: "="
 		},
 		link: function link(scope, element, attrs) {
+
 			var paint = new Paint({
 				width: scope.width,
-				height: scope.height });
+				height: scope.height,
+				lineWidth: scope.lineWidth,
+				fillStyle: scope.fillStyle,
+				strokeStyle: scope.fillStyle });
 			var canvas = paint.getCanvas();
 
 			scope.paint = paint;
 			element.append(canvas);
 
-			scope.$watch("size", function (newValue, oldValue) {
-				paint.setSize(newValue);
+			scope.$watch("lineWidth", function (newValue, oldValue) {
+				paint.setLineWidth(newValue);
 			});
 			scope.$watch(function () {
 				return scope.width + scope.height;
-			}, function (newValue, oldValue) {
-				paint.setCanvasSize(scope.width, scope.height);
-			});
+			}, function (newValue, oldValue) {});
 		}
 	};
 }).controller("MainCtrl", function ($scope) {
 
 	$scope.paints = [{
-		width: 400,
-		height: 300,
-		size: 3,
-		color: "#000"
-	}, {
 		width: 600,
 		height: 400,
-		size: 5,
-		color: "#f00"
+		lineWidth: 10,
+		fillStyle: "#000"
+	}, {
+		width: 300,
+		height: 200,
+		lineWidth: 5,
+		fillStyle: "#f00"
 	}];
-
-	$scope.undo = function (paint) {
-		// console.log(paint);
-		paint.undo();
-	};
 });
+
+//paint.setCanvasSize(scope.width, scope.height);

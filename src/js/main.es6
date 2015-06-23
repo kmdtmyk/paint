@@ -1,3 +1,4 @@
+// vim: set filetype=javascript :
 
 
 angular.module("app", [])
@@ -9,27 +10,31 @@ angular.module("app", [])
 		scope: {
 			width: "=",
 			height: "=",
-			size: "=",
-			color: "=",
+			lineWidth: "=",
+			fillStyle: "=",
 			paint: "="
 		},
 		link: (scope, element, attrs) => {
+
 			let paint = new Paint({
 				width: scope.width,
 				height: scope.height,
+				lineWidth: scope.lineWidth,
+				fillStyle: scope.fillStyle,
+				strokeStyle: scope.fillStyle,
 			});
 			let canvas = paint.getCanvas();
 
 			scope.paint = paint;
 			element.append(canvas);
 
-			scope.$watch("size", (newValue, oldValue) => {
-				paint.setSize(newValue);
+			scope.$watch("lineWidth", (newValue, oldValue) => {
+				paint.setLineWidth(newValue);
 			});
 			scope.$watch(() => {
 				return scope.width + scope.height;
 			}, (newValue, oldValue) => {
-				paint.setCanvasSize(scope.width, scope.height);
+				//paint.setCanvasSize(scope.width, scope.height);
 			});
 
 		}
@@ -40,21 +45,17 @@ angular.module("app", [])
 
 	$scope.paints = [
 		{
-			width: 400,
-			height: 300,
-			size: 3,
-			color: "#000"
-		},{
 			width: 600,
 			height: 400,
-			size: 5,
-			color: "#f00"
+			lineWidth: 10,
+			fillStyle: "#000"
+		},{
+			width: 300,
+			height: 200,
+			lineWidth: 5,
+			fillStyle: "#f00"
 		}
 	];
 
-	$scope.undo = (paint) => {
-		// console.log(paint);
-		paint.undo();
-	};
 
 });
